@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>K-Pentaly</title>
+    <script src="../build/build.js"></script>
+  </head>
+  <body>
+    <div id='root' style="margin:10px;height:450px; width:980px;">
+    </div>
+    <script>
+		    var pentalyData = {
+		        //基础信息:计量单位，Y轴信息等
+		        baseInfo : {
+		            rangeStart : 0,
+		            rangeEnd : 15,
+		            legalPenaltyHigh : 10,
+		            legalPenaltyLow : 3,
+		            startPenalty : 4,
+		            basePenalty : 4
+		        },
+		        dataArr : [{
+		                    name : '量刑起点',
+		                    level : 0,
+		                    order : 0,
+		                    historyData : {
+		                        high : 9,
+		                        most : 4,
+		                        low : 2
+		                    }
+		                }, {
+		                    name : '基准刑',
+		                    level : 0,
+		                    order : 1,
+		                    historyData : {
+		                        high : 9,
+		                        most : 4,
+		                        low : 2
+		                    }
+		                }, {
+		                    name : '坦白',
+		                    countWay : 2,
+		                    changeMax : 0.2,
+		                    changeMin : 0.1,
+		                    level : 2,
+		                    historyData : {
+		                        high : 8,
+		                        most : 7,
+		                        low : 2.5
+		                    }
+		                }, {
+		                    name : '积极赔偿',
+		                    countWay : 2,
+		                    changeMax : 0.3,
+		                    changeMin : 0.1,
+		                    level : 2,
+		                    historyData : {
+		                        high : 8,
+		                        most : 5.5,
+		                        low : 2.5
+		                    }
+		                }, {
+		                    name : '持械',
+		                    countWay : 1,
+		                    changeMax : 0.2,
+		                    changeMin : 0.1,
+		                    level : 2,
+		                    historyData : {
+		                        high : 9,
+		                        most : 5,
+		                        low : 2.5
+		                    }
+		                }, {
+		                    name : '取得被害人谅解',
+		                    countWay : 2,
+		                    changeMax : 0.2,
+		                    changeMin : 0.1,
+		                    level : 2,
+		                    historyData : {
+		                        high : 8.5,
+		                        most : 5,
+		                        low : 1
+		                    }
+		                }, {
+		                    name : '自愿认罪',
+		                    countWay : 2,
+		                    changeMax : 0.1,
+		                    changeMin : 0.05,
+		                    level : 2,
+		                    historyData : {
+		                        high : 8,
+		                        most : 4,
+		                        low : 0.8
+		                    }
+		                }
+		
+		        ],
+		        //基准刑计算规则-图表程序有默认的，这里如果设置了，按这里的计算
+		        //这个方法是图像按像素移动时的回调计算，不能用AJAX或者慢的计算方法
+			      getPentalyRangeArr : function( pentalyData , startPentaly, basePentaly ) {
+				        var newRedRangeData = [];
+				        //基准刑起刑点数据初始化
+				        var scrollBarLength = pentalyData.baseInfo.scrollLen;
+				        var highStartPentaly = (startPentaly + scrollBarLength / 2 );
+				        var lowStartPentaly = (startPentaly - scrollBarLength / 2 );
+				        newRedRangeData.push( { high : highStartPentaly, low : lowStartPentaly} );
+				        //基准刑数据进行初始化
+				        var highBasePentaly = (basePentaly + scrollBarLength / 2 );
+				        var lowBasePentaly = (basePentaly - scrollBarLength / 2 );
+				        newRedRangeData.push({ high : highBasePentaly, low : lowBasePentaly});
+				        //后面的以基准刑为起始开始计算
+				        for( var i = 2; i < pentalyData.dataArr.length; i++ ) {
+				            //记录最后一个二级
+				            var last1LevelPoint = false;
+				            if( !last1LevelPoint && 2 == pentalyData.dataArr[i].level ) {
+				                last1LevelPoint = newRedRangeData[i-1];
+				            }
+				
+				            var highChangeRate;
+				            var lowChangeRate;
+				            countWay = pentalyData.dataArr[i].countWay;
+				            if( 1 == pentalyData.dataArr[i].countWay || 'add' == countWay || 'ADD' == countWay ) {
+				                //加,上限 以changeMax计算
+				                highChangeRate = 1 + pentalyData.dataArr[i].changeMax;
+				                lowChangeRate = 1 + pentalyData.dataArr[i].changeMin;
+				            } else {
+				                //减，下限以Max计算
+				                lowChangeRate = 1 - pentalyData.dataArr[i].changeMax;
+				                highChangeRate = 1 - pentalyData.dataArr[i].changeMin;
+				            }
+				            //一级要素以上个计算结果为基数，乘以当前比例
+				            if( 1 ==  pentalyData.dataArr[i].level ) {
+				                var data = {
+				                    high :  newRedRangeData[i-1].high * highChangeRate,
+				                    low :  newRedRangeData[i-1].low * lowChangeRate
+				                }
+				            } else {
+				            //二级要素以所有一级要素乘完的计算结果作为基数，乘以当前比例
+				                var data = {
+				                    high : last1LevelPoint.high * highChangeRate,
+				                    low :  last1LevelPoint.low * lowChangeRate
+				                }
+				            }
+				            newRedRangeData.push(data);
+				        }
+				        return newRedRangeData;
+				    }
+		
+		    }
+		    var graphConfig = {
+		         marginLeft: 50,
+		         marginTop:30,
+		         marginBottom:80,
+		         marginRight: 50,
+		         hspace : 130,
+		         vspace : 130
+		    }
+       var blt = Pentaly("root", graphConfig, pentalyData);       
+    </script>
+  </body>
+</html>

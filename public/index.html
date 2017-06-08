@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>K-Pentaly</title>
+    <script src="../build/build.js"></script>
+  </head>
+  <body>
+  	<div style="width:100%;overflow:auto">
+    <div id='root' style="margin:10px;height:450px;width:985px" >
+    </div>
+    </div>
+    <script>
+		    var pentalyData = {
+		        //基础信息:计量单位，Y轴信息等
+		        startPenalty : 11*12,
+		        basePenalty : 11*12,
+
+		        rangeInfo : {
+								rangeStart : 0,
+								rangeEnd : 252,
+    						caliber : 24,
+								blueRangeDash : [ 120,180 ],
+								rangeConfigArr : [{
+											start : 0,
+											end : 252,
+											unitHeight : 1.5
+										}],
+							  rangeMax : 20*12,
+							  rangeMin : 0,
+		            legalPenaltyHigh : 180,
+		            legalPenaltyLow : 120,
+								markCreateFuntion : function(i) {
+									if( i % 12 != 0 || i > 240 ) {
+										return 'display';
+									} else {
+										return i / 12;
+									}
+								}
+		        },
+		        factorArr : [{
+		                    name : '量刑起点',
+		                    level : 0,
+		                    order : 0
+		                }, {
+		                    name : '基准刑',
+		                    level : 0,
+		                    order : 1
+		                }, {
+		                    name : '坦白',
+		                    id : 'f1',
+		                    countWay : 2,
+		                    changeMax : 100,
+		                    changeMin : 10,
+		                    level : 2
+		                }, {
+		                    name : '积极赔偿',
+		                    id : 'f2',
+		                    countWay : 2,
+		                    changeMax : 100,
+		                    changeMin : 10,
+		                    level : 2
+		                }, {
+		                    name : '持械',
+		                    id : 'f3',
+		                    countWay : 1,
+		                    changeMax : 100,
+		                    changeMin : 10,
+		                    level : 2
+		                }, {
+		                    name : '取得被害人谅解',
+		                    id : 'f4',
+		                    countWay : 2,
+		                    changeMax : 100,
+		                    changeMin : 10,
+		                    level : 2
+		                }, {
+		                    name : '自愿认罪',
+		                    id : 'f5',
+		                    countWay : 2,
+		                    changeMax : 10,
+		                    changeMin : 5,
+		                    level : 2
+		                }
+		
+		        ],
+						onscrollCallBack : function( ) {
+							//console.log()
+						}
+		    }
+		    var graphConfig = {
+		         marginLeft: 50,
+		         marginTop:30,
+		         marginBottom:80,
+		         marginRight: 50,
+		         hspace : 130,
+		         vspace : 130
+		    }
+       var blt = Pentaly("root", graphConfig, pentalyData);       
+    </script>
+  </body>
+</html>
